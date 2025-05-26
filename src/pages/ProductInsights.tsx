@@ -3,7 +3,7 @@ import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Package, TrendingDown, TrendingUp, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Package, TrendingDown, TrendingUp, AlertTriangle, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const productData = [
@@ -152,7 +152,7 @@ const ProductInsights = () => {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm text-slate-600">Your Churn:</span>
@@ -185,6 +185,20 @@ const ProductInsights = () => {
                       <p className="text-sm text-slate-800">{product.recommendation}</p>
                       <Button size="sm" className="mt-2">
                         Implement
+                      </Button>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm text-slate-600 mb-2">Customer Insights:</p>
+                      <p className="text-sm text-slate-800 mb-2">Analyze who buys this product</p>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="w-full flex items-center gap-2"
+                        onClick={() => navigate('/customer-segmentation')}
+                      >
+                        <Users size={16} />
+                        View Customer Segments
                       </Button>
                     </div>
                   </div>
