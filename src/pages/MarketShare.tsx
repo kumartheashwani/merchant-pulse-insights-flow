@@ -1,10 +1,10 @@
-
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import GeographicMap from '@/components/GeographicMap';
 
 const marketShareData = [
   { name: 'TechHub', value: 23, color: '#ef4444' },
@@ -14,16 +14,33 @@ const marketShareData = [
   { name: 'Others', value: 31.7, color: '#94a3b8' },
 ];
 
+// Extended geography data with coordinates and state/city levels
 const geographyData = [
-  { name: '10001', share: 15.2, trend: 2.3 },
-  { name: '10002', share: 12.8, trend: -0.5 },
-  { name: '10003', share: 18.5, trend: 4.1 },
-  { name: '10004', share: 9.3, trend: 1.8 },
-  { name: '10005', share: 11.7, trend: -1.2 },
+  // States
+  { id: 'ny', name: 'New York', share: 18.5, trend: 4.1, coordinates: [-74.0059, 40.7128] as [number, number], level: 'state' as const },
+  { id: 'ca', name: 'California', share: 15.2, trend: 2.3, coordinates: [-119.4179, 36.7783] as [number, number], level: 'state' as const },
+  { id: 'tx', name: 'Texas', share: 12.8, trend: -0.5, coordinates: [-99.9018, 31.9686] as [number, number], level: 'state' as const },
+  { id: 'fl', name: 'Florida', share: 11.7, trend: -1.2, coordinates: [-81.7609, 27.8333] as [number, number], level: 'state' as const },
+  { id: 'il', name: 'Illinois', share: 9.3, trend: 1.8, coordinates: [-89.3985, 40.6331] as [number, number], level: 'state' as const },
+  
+  // Cities in NY
+  { id: 'nyc', name: 'New York City, NY', share: 22.1, trend: 5.2, coordinates: [-74.0059, 40.7128] as [number, number], level: 'city' as const },
+  { id: 'buffalo', name: 'Buffalo, NY', share: 8.3, trend: 1.5, coordinates: [-78.8784, 42.8864] as [number, number], level: 'city' as const },
+  { id: 'rochester', name: 'Rochester, NY', share: 6.7, trend: -0.8, coordinates: [-77.6109, 43.1566] as [number, number], level: 'city' as const },
+  
+  // Cities in CA
+  { id: 'la', name: 'Los Angeles, CA', share: 19.4, trend: 3.1, coordinates: [-118.2437, 34.0522] as [number, number], level: 'city' as const },
+  { id: 'sf', name: 'San Francisco, CA', share: 16.8, trend: 2.7, coordinates: [-122.4194, 37.7749] as [number, number], level: 'city' as const },
+  { id: 'sd', name: 'San Diego, CA', share: 12.5, trend: 1.9, coordinates: [-117.1611, 32.7157] as [number, number], level: 'city' as const },
 ];
 
 const MarketShare = () => {
   const navigate = useNavigate();
+
+  const handleLocationSelect = (location: any) => {
+    console.log('Selected location:', location);
+    // You can add more functionality here, like showing detailed analytics for the selected location
+  };
 
   return (
     <Layout>
@@ -79,45 +96,25 @@ const MarketShare = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin size={20} />
-                Geographic Breakdown
+                Interactive Geographic Map
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={geographyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip 
-                      formatter={(value, name) => [`${value}%`, 'Market Share']}
-                      labelFormatter={(label) => `Zip Code: ${label}`}
-                    />
-                    <Bar 
-                      dataKey="share" 
-                      fill="url(#colorGradient)"
-                      radius={[4, 4, 0, 0]}
-                    />
-                    <defs>
-                      <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.8}/>
-                      </linearGradient>
-                    </defs>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <GeographicMap 
+                data={geographyData} 
+                onLocationSelect={handleLocationSelect}
+              />
             </CardContent>
           </Card>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {geographyData.map((area) => (
+          {geographyData.filter(area => area.level === 'state').slice(0, 3).map((area) => (
             <Card key={area.name} className="border-0 bg-white/80 backdrop-blur-sm">
               <CardContent className="pt-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="font-semibold text-lg">Zip {area.name}</h3>
+                    <h3 className="font-semibold text-lg">{area.name}</h3>
                     <p className="text-2xl font-bold text-blue-600">{area.share}%</p>
                   </div>
                   <div className={`flex items-center gap-1 px-2 py-1 rounded text-sm ${
@@ -153,7 +150,7 @@ const MarketShare = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-blue-50 rounded-lg">
-                <h4 className="font-semibold text-blue-900 mb-2">Expand to 10003</h4>
+                <h4 className="font-semibold text-blue-900 mb-2">Expand to New York</h4>
                 <p className="text-blue-700 text-sm mb-3">
                   Highest market share (18.5%) with strong growth trend (+4.1%). 
                   Consider increasing inventory and marketing spend.
@@ -163,7 +160,7 @@ const MarketShare = () => {
                 </Button>
               </div>
               <div className="p-4 bg-emerald-50 rounded-lg">
-                <h4 className="font-semibold text-emerald-900 mb-2">Defend 10001 Position</h4>
+                <h4 className="font-semibold text-emerald-900 mb-2">Defend California Position</h4>
                 <p className="text-emerald-700 text-sm mb-3">
                   Strong market share but slower growth. Focus on customer retention 
                   and competitive pricing strategies.
