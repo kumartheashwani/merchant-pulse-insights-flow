@@ -1,10 +1,11 @@
-
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Package, TrendingDown, TrendingUp, AlertTriangle, Users } from 'lucide-react';
+import { ArrowLeft, Package, TrendingDown, TrendingUp, AlertTriangle, Users, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { SentimentModal } from '@/components/SentimentModal';
 
 const productData = [
   { 
@@ -14,7 +15,9 @@ const productData = [
     churnRate: 18,
     competitorAvg: 12,
     opportunity: 'Price Optimization',
-    recommendation: 'Reduce price by 8% and add loyalty rewards'
+    recommendation: 'Reduce price by 8% and add loyalty rewards',
+    sentimentScore: 0.65,
+    sentimentBreakdown: { positive: 65, negative: 20, neutral: 15 }
   },
   { 
     name: 'Wireless Earbuds', 
@@ -23,7 +26,9 @@ const productData = [
     churnRate: 15,
     competitorAvg: 10,
     opportunity: 'Shipping Speed',
-    recommendation: 'Offer next-day delivery for premium customers'
+    recommendation: 'Offer next-day delivery for premium customers',
+    sentimentScore: 0.58,
+    sentimentBreakdown: { positive: 58, negative: 28, neutral: 14 }
   },
   { 
     name: 'Phone Chargers', 
@@ -32,7 +37,9 @@ const productData = [
     churnRate: 12,
     competitorAvg: 11,
     opportunity: 'Bundle Deals',
-    recommendation: 'Create charging bundles with cables and adapters'
+    recommendation: 'Create charging bundles with cables and adapters',
+    sentimentScore: 0.72,
+    sentimentBreakdown: { positive: 72, negative: 15, neutral: 13 }
   },
   { 
     name: 'Bluetooth Speakers', 
@@ -41,7 +48,9 @@ const productData = [
     churnRate: 8,
     competitorAvg: 14,
     opportunity: 'Market Expansion',
-    recommendation: 'Increase inventory and expand to new geographies'
+    recommendation: 'Increase inventory and expand to new geographies',
+    sentimentScore: 0.78,
+    sentimentBreakdown: { positive: 78, negative: 12, neutral: 10 }
   },
   { 
     name: 'Smart Watches', 
@@ -50,12 +59,68 @@ const productData = [
     churnRate: 6,
     competitorAvg: 13,
     opportunity: 'Premium Positioning',
-    recommendation: 'Focus on high-end models and exclusive features'
+    recommendation: 'Focus on high-end models and exclusive features',
+    sentimentScore: 0.82,
+    sentimentBreakdown: { positive: 82, negative: 8, neutral: 10 }
   },
 ];
 
+const wordCloudData = {
+  'iPhone Cases': [
+    { text: 'durable', value: 45, sentiment: 'positive' },
+    { text: 'expensive', value: 32, sentiment: 'negative' },
+    { text: 'stylish', value: 28, sentiment: 'positive' },
+    { text: 'fragile', value: 25, sentiment: 'negative' },
+    { text: 'perfect', value: 22, sentiment: 'positive' },
+    { text: 'quality', value: 20, sentiment: 'positive' },
+    { text: 'overpriced', value: 18, sentiment: 'negative' },
+    { text: 'amazing', value: 15, sentiment: 'positive' }
+  ],
+  'Wireless Earbuds': [
+    { text: 'sound', value: 42, sentiment: 'positive' },
+    { text: 'battery', value: 38, sentiment: 'negative' },
+    { text: 'comfortable', value: 35, sentiment: 'positive' },
+    { text: 'connection', value: 30, sentiment: 'negative' },
+    { text: 'excellent', value: 25, sentiment: 'positive' },
+    { text: 'problems', value: 22, sentiment: 'negative' },
+    { text: 'clear', value: 20, sentiment: 'positive' },
+    { text: 'disappointing', value: 18, sentiment: 'negative' }
+  ],
+  'Phone Chargers': [
+    { text: 'fast', value: 40, sentiment: 'positive' },
+    { text: 'reliable', value: 35, sentiment: 'positive' },
+    { text: 'works', value: 30, sentiment: 'positive' },
+    { text: 'broke', value: 25, sentiment: 'negative' },
+    { text: 'convenient', value: 22, sentiment: 'positive' },
+    { text: 'cheap', value: 20, sentiment: 'negative' },
+    { text: 'perfect', value: 18, sentiment: 'positive' },
+    { text: 'stopped', value: 15, sentiment: 'negative' }
+  ],
+  'Bluetooth Speakers': [
+    { text: 'sound', value: 50, sentiment: 'positive' },
+    { text: 'loud', value: 45, sentiment: 'positive' },
+    { text: 'portable', value: 38, sentiment: 'positive' },
+    { text: 'bass', value: 35, sentiment: 'positive' },
+    { text: 'great', value: 30, sentiment: 'positive' },
+    { text: 'distorted', value: 20, sentiment: 'negative' },
+    { text: 'amazing', value: 18, sentiment: 'positive' },
+    { text: 'love', value: 15, sentiment: 'positive' }
+  ],
+  'Smart Watches': [
+    { text: 'features', value: 48, sentiment: 'positive' },
+    { text: 'battery', value: 42, sentiment: 'positive' },
+    { text: 'accurate', value: 38, sentiment: 'positive' },
+    { text: 'sleek', value: 35, sentiment: 'positive' },
+    { text: 'excellent', value: 30, sentiment: 'positive' },
+    { text: 'expensive', value: 15, sentiment: 'negative' },
+    { text: 'perfect', value: 25, sentiment: 'positive' },
+    { text: 'innovative', value: 20, sentiment: 'positive' }
+  ]
+};
+
 const ProductInsights = () => {
   const navigate = useNavigate();
+  const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
 
   const getPerformanceColor = (performance: string) => {
     switch (performance) {
@@ -72,6 +137,18 @@ const ProductInsights = () => {
       case 'declining': return <TrendingDown size={16} />;
       default: return null;
     }
+  };
+
+  const getSentimentIcon = (score: number) => {
+    if (score > 0.7) return <TrendingUp size={16} className="text-emerald-600" />;
+    if (score < 0.5) return <TrendingDown size={16} className="text-red-600" />;
+    return <MessageSquare size={16} className="text-slate-600" />;
+  };
+
+  const getSentimentColor = (score: number) => {
+    if (score > 0.7) return 'bg-emerald-100 text-emerald-800';
+    if (score < 0.5) return 'bg-red-100 text-red-800';
+    return 'bg-slate-100 text-slate-800';
   };
 
   return (
@@ -145,6 +222,13 @@ const ProductInsights = () => {
                         {getPerformanceIcon(product.performance)}
                         <span className="ml-1 capitalize">{product.performance}</span>
                       </Badge>
+                      <Badge 
+                        className={`${getSentimentColor(product.sentimentScore)} cursor-pointer hover:opacity-80`}
+                        onClick={() => setSelectedProduct(product.name)}
+                      >
+                        {getSentimentIcon(product.sentimentScore)}
+                        <span className="ml-1">Sentiment: {(product.sentimentScore * 100).toFixed(0)}%</span>
+                      </Badge>
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-slate-900">{product.churnRate}%</p>
@@ -152,7 +236,7 @@ const ProductInsights = () => {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm text-slate-600">Your Churn:</span>
@@ -199,6 +283,23 @@ const ProductInsights = () => {
                       >
                         <Users size={16} />
                         View Customer Segments
+                      </Button>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm text-slate-600 mb-2">Review Sentiment:</p>
+                      <p className="text-sm text-slate-800 mb-2">
+                        {product.sentimentScore > 0.7 ? 'Very Positive' : 
+                         product.sentimentScore > 0.5 ? 'Positive' : 'Mixed Reviews'}
+                      </p>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="w-full flex items-center gap-2"
+                        onClick={() => setSelectedProduct(product.name)}
+                      >
+                        <MessageSquare size={16} />
+                        View Word Cloud
                       </Button>
                     </div>
                   </div>
@@ -267,3 +368,14 @@ const ProductInsights = () => {
 };
 
 export default ProductInsights;
+
+{selectedProduct && (
+  <SentimentModal
+    isOpen={!!selectedProduct}
+    onClose={() => setSelectedProduct(null)}
+    productName={selectedProduct}
+    sentimentScore={productData.find(p => p.name === selectedProduct)?.sentimentScore || 0}
+    wordCloudData={wordCloudData[selectedProduct as keyof typeof wordCloudData] || []}
+    sentimentBreakdown={productData.find(p => p.name === selectedProduct)?.sentimentBreakdown || { positive: 0, negative: 0, neutral: 0 }}
+  />
+)}

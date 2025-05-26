@@ -1,3 +1,4 @@
+
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { MetricCard } from '@/components/MetricCard';
@@ -8,10 +9,12 @@ import {
   TrendingUp, 
   Users,
   Target,
-  DollarSign
+  DollarSign,
+  MessageSquare
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -38,11 +41,15 @@ const Index = () => {
               <p className="text-sm opacity-90">Conversion Rate</p>
               <p className="text-xl font-bold">3.2%</p>
             </div>
+            <div className="bg-white/20 rounded-lg p-3">
+              <p className="text-sm opacity-90">Avg Sentiment</p>
+              <p className="text-xl font-bold">71%</p>
+            </div>
           </div>
         </div>
 
         {/* Key Metrics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
             title="Market Share"
             value="12.3%"
@@ -70,6 +77,16 @@ const Index = () => {
             changeLabel="vs last month"
             icon={<UserX size={20} />}
             onClick={() => navigate('/churn-analysis')}
+            className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
+          />
+
+          <MetricCard
+            title="Customer Sentiment"
+            value="71%"
+            change={4.2}
+            changeLabel="vs last month"
+            icon={<MessageSquare size={20} />}
+            onClick={() => navigate('/product-insights')}
             className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
           />
         </div>
@@ -128,39 +145,39 @@ const Index = () => {
           <Card className="border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <DollarSign className="text-blue-600" size={20} />
-                Competitive Intelligence
+                <MessageSquare className="text-blue-600" size={20} />
+                Sentiment Intelligence
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+              <div className="flex justify-between items-center p-3 bg-emerald-50 rounded-lg">
                 <div>
-                  <p className="font-semibold">TechHub</p>
-                  <p className="text-sm text-slate-600">Market Leader</p>
+                  <p className="font-semibold">Smart Watches</p>
+                  <p className="text-sm text-slate-600">Top Rated Product</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-lg">23%</p>
-                  <p className="text-sm text-slate-600">Market Share</p>
+                  <Badge className="bg-emerald-100 text-emerald-800">82%</Badge>
+                  <p className="text-sm text-slate-600">Positive</p>
                 </div>
               </div>
-              <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+              <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
                 <div>
-                  <p className="font-semibold">ElectroMax</p>
-                  <p className="text-sm text-slate-600">Close Competitor</p>
+                  <p className="font-semibold">Wireless Earbuds</p>
+                  <p className="text-sm text-slate-600">Needs Attention</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-lg">18%</p>
-                  <p className="text-sm text-slate-600">Market Share</p>
+                  <Badge className="bg-yellow-100 text-yellow-800">58%</Badge>
+                  <p className="text-sm text-slate-600">Mixed</p>
                 </div>
               </div>
               <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border-2 border-blue-200">
                 <div>
-                  <p className="font-semibold text-blue-900">Your Store</p>
-                  <p className="text-sm text-blue-600">Growing Fast</p>
+                  <p className="font-semibold text-blue-900">Overall Sentiment</p>
+                  <p className="text-sm text-blue-600">+4.2% vs last month</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-lg text-blue-900">12.3%</p>
-                  <p className="text-sm text-blue-600">Market Share</p>
+                  <Badge className="bg-blue-100 text-blue-800">71%</Badge>
+                  <p className="text-sm text-blue-600">Positive Trend</p>
                 </div>
               </div>
             </CardContent>
