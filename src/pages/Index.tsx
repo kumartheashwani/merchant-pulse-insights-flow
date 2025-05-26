@@ -24,25 +24,25 @@ const Index = () => {
     <Layout>
       <div className="space-y-6">
         {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-paypal-blue to-blue-700 rounded-xl p-6 text-white">
-          <h1 className="text-3xl font-bold mb-2">Welcome back, Sarah!</h1>
+        <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 rounded-xl p-6 text-white shadow-lg border border-blue-500/20">
+          <h1 className="text-3xl font-bold mb-2 text-white">Welcome back, Sarah!</h1>
           <p className="text-blue-100 mb-4">
             Here's what's happening with your D2C electronics store this week.
           </p>
           <div className="flex gap-4">
-            <div className="bg-white/20 rounded-lg p-3">
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
               <p className="text-sm opacity-90">Revenue this month</p>
               <p className="text-xl font-bold">$84,352</p>
             </div>
-            <div className="bg-white/20 rounded-lg p-3">
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
               <p className="text-sm opacity-90">Orders</p>
               <p className="text-xl font-bold">1,247</p>
             </div>
-            <div className="bg-white/20 rounded-lg p-3">
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
               <p className="text-sm opacity-90">Conversion Rate</p>
               <p className="text-xl font-bold">3.2%</p>
             </div>
-            <div className="bg-white/20 rounded-lg p-3">
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
               <p className="text-sm opacity-90">Avg Sentiment</p>
               <p className="text-xl font-bold">71%</p>
             </div>
