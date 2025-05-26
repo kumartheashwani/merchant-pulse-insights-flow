@@ -34,6 +34,16 @@ const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
   const markersLayer = useRef<L.LayerGroup | null>(null);
   const [zoomLevel, setZoomLevel] = useState<'state' | 'city'>('state');
   const [selectedState, setSelectedState] = useState<string>('');
+  const [selectedCity, setSelectedCity] = useState<string>('');
+
+  // Get unique cities for the city selector
+  const cityOptions = data
+    .filter(location => location.level === 'city')
+    .map(city => ({
+      id: city.id,
+      name: city.name,
+      coordinates: city.coordinates
+    }));
 
   const initializeMap = () => {
     if (!mapContainer.current) return;
@@ -118,7 +128,33 @@ const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
     });
   };
 
+  const handleCitySelect = (cityId: string) => {
+    setSelectedCity(cityId);
+    const city = cityOptions.find(c => c.id === cityId);
+    if (city && map.current) {
+      // Zoom to the selected city with high zoom level for city view
+      map.current.setView([city.coordinates[1], city.coordinates[0]], 12);
+      
+      // Show only the selected city's data
+      const cityData = data.filter(location => location.id === cityId);
+      addMarkers(cityData);
+    }
+  };
+
+  const resetToCountryView = () => {
+    setSelectedCity('');
+    setSelectedState('');
+    setZoomLevel('state');
+    if (map.current) {
+      map.current.setView([39.8283, -98.5795], 4);
+      addMarkers(data.filter(location => location.level === 'state'));
+    }
+  };
+
   const filteredData = data.filter(location => {
+    if (selectedCity) {
+      return location.id === selectedCity;
+    }
     if (zoomLevel === 'state') {
       return location.level === 'state';
     } else {
@@ -135,8 +171,8 @@ const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
   }, []);
 
   useEffect(() => {
-    if (map.current && markersLayer.current) {
-      // Update markers based on filters
+    if (map.current && markersLayer.current && !selectedCity) {
+      // Update markers based on filters (only if not in city view)
       addMarkers(filteredData);
 
       // Adjust zoom based on level
@@ -156,36 +192,66 @@ const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4 items-center">
+      <div className="flex gap-4 items-center flex-wrap">
         <div className="flex items-center gap-2">
-          <Label htmlFor="zoom-level">View Level:</Label>
-          <Select value={zoomLevel} onValueChange={(value: 'state' | 'city') => setZoomLevel(value)}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
+          <Label htmlFor="city-select">City View:</Label>
+          <Select value={selectedCity} onValueChange={handleCitySelect}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Select a city" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="state">State</SelectItem>
-              <SelectItem value="city">City</SelectItem>
+              {cityOptions.map((city) => (
+                <SelectItem key={city.id} value={city.id}>
+                  {city.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
-        
-        {zoomLevel === 'city' && (
-          <div className="flex items-center gap-2">
-            <Label htmlFor="state-filter">Filter by State:</Label>
-            <Select value={selectedState} onValueChange={setSelectedState}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="All States" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All States</SelectItem>
-                <SelectItem value="NY">New York</SelectItem>
-                <SelectItem value="CA">California</SelectItem>
-                <SelectItem value="TX">Texas</SelectItem>
-                <SelectItem value="FL">Florida</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+
+        {selectedCity && (
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={resetToCountryView}
+          >
+            Reset to Country View
+          </Button>
+        )}
+
+        {!selectedCity && (
+          <>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="zoom-level">View Level:</Label>
+              <Select value={zoomLevel} onValueChange={(value: 'state' | 'city') => setZoomLevel(value)}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="state">State</SelectItem>
+                  <SelectItem value="city">City</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {zoomLevel === 'city' && (
+              <div className="flex items-center gap-2">
+                <Label htmlFor="state-filter">Filter by State:</Label>
+                <Select value={selectedState} onValueChange={setSelectedState}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="All States" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All States</SelectItem>
+                    <SelectItem value="NY">New York</SelectItem>
+                    <SelectItem value="CA">California</SelectItem>
+                    <SelectItem value="TX">Texas</SelectItem>
+                    <SelectItem value="FL">Florida</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </>
         )}
       </div>
       
