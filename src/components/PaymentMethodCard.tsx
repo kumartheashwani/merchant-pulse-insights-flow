@@ -17,51 +17,81 @@ interface PaymentMethod {
 
 interface PaymentMethodCardProps {
   className?: string;
+  selectedStore?: string;
 }
 
-export const PaymentMethodCard = ({ className }: PaymentMethodCardProps) => {
-  const paymentMethods: PaymentMethod[] = [
-    {
-      name: "Credit Cards",
-      share: 45.2,
-      growth: -2.1,
-      opportunity: "Stable but declining",
-      icon: <CreditCard size={16} />,
-      color: "bg-blue-100 text-blue-800"
-    },
-    {
-      name: "PayPal",
-      share: 28.7,
-      growth: 5.3,
-      opportunity: "Strong growth potential",
-      icon: <div className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">P</div>,
-      color: "bg-blue-100 text-blue-800"
-    },
-    {
-      name: "PayPal BNPL",
-      share: 8.1,
-      growth: 23.4,
-      opportunity: "High growth opportunity",
-      icon: <div className="w-4 h-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded flex items-center justify-center text-white text-xs font-bold">B</div>,
-      color: "bg-purple-100 text-purple-800"
-    },
-    {
-      name: "Other BNPL",
-      share: 12.4,
-      growth: 15.2,
-      opportunity: "Competitive pressure",
-      icon: <div className="w-4 h-4 bg-gray-400 rounded flex items-center justify-center text-white text-xs font-bold">B</div>,
-      color: "bg-gray-100 text-gray-800"
-    },
-    {
-      name: "Bank Transfer",
-      share: 5.6,
-      growth: -1.8,
-      opportunity: "Limited growth",
-      icon: <div className="w-4 h-4 bg-green-500 rounded flex items-center justify-center text-white text-xs font-bold">B</div>,
-      color: "bg-green-100 text-green-800"
+export const PaymentMethodCard = ({ className, selectedStore = 'all' }: PaymentMethodCardProps) => {
+  // Dynamic payment data based on store selection
+  const getPaymentDataForStore = (storeId: string) => {
+    const baseData = [
+      {
+        name: "Credit Cards",
+        share: 45.2,
+        growth: -2.1,
+        opportunity: "Stable but declining",
+        icon: <CreditCard size={16} />,
+        color: "bg-blue-100 text-blue-800"
+      },
+      {
+        name: "PayPal",
+        share: 28.7,
+        growth: 5.3,
+        opportunity: "Strong growth potential",
+        icon: <div className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">P</div>,
+        color: "bg-blue-100 text-blue-800"
+      },
+      {
+        name: "PayPal BNPL",
+        share: 8.1,
+        growth: 23.4,
+        opportunity: "High growth opportunity",
+        icon: <div className="w-4 h-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded flex items-center justify-center text-white text-xs font-bold">B</div>,
+        color: "bg-purple-100 text-purple-800"
+      },
+      {
+        name: "Other BNPL",
+        share: 12.4,
+        growth: 15.2,
+        opportunity: "Competitive pressure",
+        icon: <div className="w-4 h-4 bg-gray-400 rounded flex items-center justify-center text-white text-xs font-bold">B</div>,
+        color: "bg-gray-100 text-gray-800"
+      },
+      {
+        name: "Bank Transfer",
+        share: 5.6,
+        growth: -1.8,
+        opportunity: "Limited growth",
+        icon: <div className="w-4 h-4 bg-green-500 rounded flex items-center justify-center text-white text-xs font-bold">B</div>,
+        color: "bg-green-100 text-green-800"
+      }
+    ];
+
+    // Adjust data based on store type
+    switch (storeId) {
+      case 'store-main':
+        return baseData.map(method => ({
+          ...method,
+          share: method.name === 'PayPal BNPL' ? method.share + 3.2 : method.share - 0.8,
+          growth: method.name === 'PayPal BNPL' ? method.growth + 5.1 : method.growth
+        }));
+      case 'store-mall1':
+        return baseData.map(method => ({
+          ...method,
+          share: method.name === 'Credit Cards' ? method.share + 5.4 : method.share - 1.2,
+          growth: method.name === 'PayPal BNPL' ? method.growth - 3.2 : method.growth
+        }));
+      case 'group-downtown':
+        return baseData.map(method => ({
+          ...method,
+          share: method.name === 'PayPal BNPL' ? method.share + 2.1 : method.share - 0.5,
+          growth: method.name === 'PayPal BNPL' ? method.growth + 2.8 : method.growth
+        }));
+      default:
+        return baseData;
     }
-  ];
+  };
+
+  const paymentMethods = getPaymentDataForStore(selectedStore);
 
   const totalBNPLShare = paymentMethods
     .filter(method => method.name.includes('BNPL'))
@@ -73,6 +103,19 @@ export const PaymentMethodCard = ({ className }: PaymentMethodCardProps) => {
   const paypalBNPLShare = paymentMethods
     .find(method => method.name === 'PayPal BNPL')?.share || 0;
 
+  const getStoreContext = () => {
+    switch (selectedStore) {
+      case 'store-main':
+        return 'Main Street Store shows higher PayPal BNPL adoption';
+      case 'store-mall1':
+        return 'Mall location favors traditional credit cards';
+      case 'group-downtown':
+        return 'Downtown stores show strong BNPL growth potential';
+      default:
+        return 'Aggregated view across all store locations';
+    }
+  };
+
   return (
     <Card className={cn("border-0 bg-white/80 backdrop-blur-sm", className)}>
       <CardHeader>
@@ -80,6 +123,7 @@ export const PaymentMethodCard = ({ className }: PaymentMethodCardProps) => {
           <CreditCard className="text-blue-600" size={20} />
           Payment Method Analysis
         </CardTitle>
+        <p className="text-sm text-slate-600">{getStoreContext()}</p>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* BNPL Opportunity Highlight */}
@@ -89,7 +133,7 @@ export const PaymentMethodCard = ({ className }: PaymentMethodCardProps) => {
             <h4 className="font-semibold text-purple-900">BNPL Opportunity</h4>
           </div>
           <p className="text-sm text-purple-700 mb-3">
-            BNPL market share: {totalBNPLShare.toFixed(1)}% total. PayPal BNPL growing at 23.4% vs competitors at 15.2%
+            BNPL market share: {totalBNPLShare.toFixed(1)}% total. PayPal BNPL growing at {paymentMethods.find(m => m.name === 'PayPal BNPL')?.growth.toFixed(1)}% vs competitors at {paymentMethods.find(m => m.name === 'Other BNPL')?.growth.toFixed(1)}%
           </p>
           <div className="flex gap-2">
             <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600">
@@ -115,7 +159,7 @@ export const PaymentMethodCard = ({ className }: PaymentMethodCardProps) => {
               </div>
               <div className="text-right">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-bold text-sm">{method.share}%</span>
+                  <span className="font-bold text-sm">{method.share.toFixed(1)}%</span>
                   <div className="flex items-center gap-1">
                     {method.growth > 0 ? (
                       <TrendingUp className="w-3 h-3 text-emerald-600" />
@@ -126,7 +170,7 @@ export const PaymentMethodCard = ({ className }: PaymentMethodCardProps) => {
                       "text-xs font-medium",
                       method.growth > 0 ? "text-emerald-600" : "text-red-500"
                     )}>
-                      {method.growth > 0 ? '+' : ''}{method.growth}%
+                      {method.growth > 0 ? '+' : ''}{method.growth.toFixed(1)}%
                     </span>
                   </div>
                 </div>
@@ -145,15 +189,15 @@ export const PaymentMethodCard = ({ className }: PaymentMethodCardProps) => {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-blue-700">Your PayPal BNPL Share</p>
-              <p className="font-bold text-blue-900">{paypalBNPLShare}%</p>
+              <p className="font-bold text-blue-900">{paypalBNPLShare.toFixed(1)}%</p>
             </div>
             <div>
               <p className="text-blue-700">Competitor BNPL Share</p>
-              <p className="font-bold text-blue-900">{competitorBNPLShare}%</p>
+              <p className="font-bold text-blue-900">{competitorBNPLShare.toFixed(1)}%</p>
             </div>
           </div>
           <p className="text-xs text-blue-600 mt-2">
-            Opportunity to capture {(competitorBNPLShare - paypalBNPLShare).toFixed(1)}% market share with PayPal BNPL
+            Opportunity to capture {Math.max(0, competitorBNPLShare - paypalBNPLShare).toFixed(1)}% market share with PayPal BNPL
           </p>
         </div>
       </CardContent>

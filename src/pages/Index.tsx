@@ -1,8 +1,10 @@
 
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { MetricCard } from '@/components/MetricCard';
 import { PaymentMethodCard } from '@/components/PaymentMethodCard';
+import { StoreSelector } from '@/components/StoreSelector';
 import { 
   PieChart, 
   ShoppingCart, 
@@ -19,10 +21,57 @@ import { Badge } from '@/components/ui/badge';
 
 const Index = () => {
   const navigate = useNavigate();
+  const [selectedStore, setSelectedStore] = useState('all');
+
+  // Dynamic metrics based on selected store
+  const getMetricsForStore = (storeId: string) => {
+    const baseMetrics = {
+      revenue: '$84,352',
+      orders: '1,247',
+      conversionRate: '3.2%',
+      sentiment: '71%'
+    };
+
+    switch (storeId) {
+      case 'store-main':
+        return {
+          revenue: '$24,500',
+          orders: '387',
+          conversionRate: '4.1%',
+          sentiment: '78%'
+        };
+      case 'store-mall1':
+        return {
+          revenue: '$18,200',
+          orders: '298',
+          conversionRate: '2.9%',
+          sentiment: '69%'
+        };
+      case 'group-downtown':
+        return {
+          revenue: '$45,800',
+          orders: '678',
+          conversionRate: '3.8%',
+          sentiment: '74%'
+        };
+      default:
+        return baseMetrics;
+    }
+  };
+
+  const currentMetrics = getMetricsForStore(selectedStore);
 
   return (
     <Layout>
       <div className="space-y-6">
+        {/* Store Selection */}
+        <div className="bg-white rounded-lg p-4 border border-slate-200">
+          <StoreSelector 
+            selectedStore={selectedStore}
+            onStoreChange={setSelectedStore}
+          />
+        </div>
+
         {/* Welcome Section */}
         <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 rounded-xl p-6 text-white shadow-lg border border-blue-500/20">
           <h1 className="text-3xl font-bold mb-2 text-white">Welcome back, Sarah!</h1>
@@ -32,19 +81,19 @@ const Index = () => {
           <div className="flex gap-4">
             <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
               <p className="text-sm opacity-90">Revenue this month</p>
-              <p className="text-xl font-bold">$84,352</p>
+              <p className="text-xl font-bold">{currentMetrics.revenue}</p>
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
               <p className="text-sm opacity-90">Orders</p>
-              <p className="text-xl font-bold">1,247</p>
+              <p className="text-xl font-bold">{currentMetrics.orders}</p>
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
               <p className="text-sm opacity-90">Conversion Rate</p>
-              <p className="text-xl font-bold">3.2%</p>
+              <p className="text-xl font-bold">{currentMetrics.conversionRate}</p>
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
               <p className="text-sm opacity-90">Avg Sentiment</p>
-              <p className="text-xl font-bold">71%</p>
+              <p className="text-xl font-bold">{currentMetrics.sentiment}</p>
             </div>
           </div>
         </div>
@@ -57,7 +106,7 @@ const Index = () => {
             change={2.1}
             changeLabel="vs last quarter"
             icon={<PieChart size={20} />}
-            onClick={() => navigate('/market-share')}
+            onClick={() => navigate(`/market-share?store=${selectedStore}`)}
             className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
           />
           
@@ -67,7 +116,7 @@ const Index = () => {
             change={-5.3}
             changeLabel="churn rate"
             icon={<ShoppingCart size={20} />}
-            onClick={() => navigate('/product-insights')}
+            onClick={() => navigate(`/product-insights?store=${selectedStore}`)}
             className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
           />
           
@@ -77,17 +126,17 @@ const Index = () => {
             change={-1.2}
             changeLabel="vs last month"
             icon={<UserX size={20} />}
-            onClick={() => navigate('/churn-analysis')}
+            onClick={() => navigate(`/churn-analysis?store=${selectedStore}`)}
             className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
           />
 
           <MetricCard
             title="Customer Sentiment"
-            value="71%"
+            value={currentMetrics.sentiment}
             change={4.2}
             changeLabel="vs last month"
             icon={<MessageSquare size={20} />}
-            onClick={() => navigate('/product-insights')}
+            onClick={() => navigate(`/product-insights?store=${selectedStore}`)}
             className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
           />
         </div>
@@ -100,7 +149,7 @@ const Index = () => {
             change={15.4}
             changeLabel="growth"
             icon={<TrendingUp size={20} />}
-            onClick={() => navigate('/trend-analysis')}
+            onClick={() => navigate(`/trend-analysis?store=${selectedStore}`)}
             className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
           />
           
@@ -110,7 +159,7 @@ const Index = () => {
             change={12.8}
             changeLabel="engagement up"
             icon={<Users size={20} />}
-            onClick={() => navigate('/customer-segmentation')}
+            onClick={() => navigate(`/customer-segmentation?store=${selectedStore}`)}
             className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
           />
         </div>
@@ -177,15 +226,15 @@ const Index = () => {
                   <p className="text-sm text-blue-600">+4.2% vs last month</p>
                 </div>
                 <div className="text-right">
-                  <Badge className="bg-blue-100 text-blue-800">71%</Badge>
+                  <Badge className="bg-blue-100 text-blue-800">{currentMetrics.sentiment}</Badge>
                   <p className="text-sm text-blue-600">Positive Trend</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* New Payment Method Analysis Card */}
-          <PaymentMethodCard />
+          {/* Payment Method Analysis Card */}
+          <PaymentMethodCard selectedStore={selectedStore} />
         </div>
       </div>
     </Layout>
