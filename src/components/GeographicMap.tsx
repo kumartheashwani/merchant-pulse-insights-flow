@@ -1,11 +1,18 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
+// Fix for default markers in Leaflet
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 interface GeographicData {
   id: string;
@@ -23,57 +30,73 @@ interface GeographicMapProps {
 
 const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState('');
-  const [showTokenInput, setShowTokenInput] = useState(true);
+  const map = useRef<L.Map | null>(null);
+  const markersLayer = useRef<L.LayerGroup | null>(null);
   const [zoomLevel, setZoomLevel] = useState<'state' | 'city'>('state');
   const [selectedState, setSelectedState] = useState<string>('');
 
   const initializeMap = () => {
-    if (!mapContainer.current || !mapboxToken) return;
+    if (!mapContainer.current) return;
 
-    mapboxgl.accessToken = mapboxToken;
-    
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: [-98.5795, 39.8283], // Center of US
-      zoom: zoomLevel === 'state' ? 4 : 8,
-      pitch: 0,
-    });
+    // Initialize the map
+    map.current = L.map(mapContainer.current).setView([39.8283, -98.5795], 4);
 
-    // Add navigation controls
-    map.current.addControl(
-      new mapboxgl.NavigationControl(),
-      'top-right'
-    );
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 18,
+    }).addTo(map.current);
 
-    // Add markers for each location
-    data.forEach((location) => {
-      if (!map.current) return;
+    // Create a layer group for markers
+    markersLayer.current = L.layerGroup().addTo(map.current);
+
+    // Add markers for initial data
+    addMarkers(data.filter(location => location.level === 'state'));
+  };
+
+  const addMarkers = (locations: GeographicData[]) => {
+    if (!map.current || !markersLayer.current) return;
+
+    // Clear existing markers
+    markersLayer.current.clearLayers();
+
+    locations.forEach((location) => {
+      // Create custom icon based on market share and trend
+      const size = Math.max(20, Math.min(50, location.share * 2));
+      const color = location.trend > 0 ? '#10b981' : location.trend < 0 ? '#ef4444' : '#6b7280';
       
-      // Create a custom marker element
-      const markerElement = document.createElement('div');
-      markerElement.className = 'custom-marker';
-      markerElement.style.cssText = `
-        width: ${Math.max(20, location.share)}px;
-        height: ${Math.max(20, location.share)}px;
-        background-color: ${location.trend > 0 ? '#10b981' : location.trend < 0 ? '#ef4444' : '#6b7280'};
-        border: 2px solid white;
-        border-radius: 50%;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 10px;
-        font-weight: bold;
-      `;
-      markerElement.textContent = `${location.share}%`;
+      const customIcon = L.divIcon({
+        className: 'custom-marker',
+        html: `
+          <div style="
+            width: ${size}px;
+            height: ${size}px;
+            background-color: ${color};
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            cursor: pointer;
+          ">
+            ${location.share}%
+          </div>
+        `,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
+      });
 
-      // Create popup
-      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+      // Create marker
+      const marker = L.marker([location.coordinates[1], location.coordinates[0]], {
+        icon: customIcon,
+      });
+
+      // Create popup content
+      const popupContent = `
         <div class="p-2">
           <h3 class="font-semibold">${location.name}</h3>
           <p class="text-sm">Market Share: ${location.share}%</p>
@@ -81,27 +104,18 @@ const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
             Trend: ${location.trend > 0 ? '+' : ''}${location.trend}%
           </p>
         </div>
-      `);
+      `;
 
-      // Add marker to map
-      new mapboxgl.Marker(markerElement)
-        .setLngLat(location.coordinates)
-        .setPopup(popup)
-        .addTo(map.current);
+      marker.bindPopup(popupContent);
 
-      // Add click handler
-      markerElement.addEventListener('click', () => {
+      // Add click event
+      marker.on('click', () => {
         onLocationSelect?.(location);
       });
+
+      // Add marker to layer group
+      markersLayer.current?.addLayer(marker);
     });
-
-    setShowTokenInput(false);
-  };
-
-  const handleTokenSubmit = () => {
-    if (mapboxToken.trim()) {
-      initializeMap();
-    }
   };
 
   const filteredData = data.filter(location => {
@@ -113,96 +127,32 @@ const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
   });
 
   useEffect(() => {
-    if (map.current && !showTokenInput) {
-      // Clear existing markers and re-add with filtered data
-      const markers = document.querySelectorAll('.custom-marker');
-      markers.forEach(marker => marker.remove());
-      
-      // Re-initialize with filtered data
-      filteredData.forEach((location) => {
-        if (!map.current) return;
-        
-        const markerElement = document.createElement('div');
-        markerElement.className = 'custom-marker';
-        markerElement.style.cssText = `
-          width: ${Math.max(20, location.share)}px;
-          height: ${Math.max(20, location.share)}px;
-          background-color: ${location.trend > 0 ? '#10b981' : location.trend < 0 ? '#ef4444' : '#6b7280'};
-          border: 2px solid white;
-          border-radius: 50%;
-          cursor: pointer;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 10px;
-          font-weight: bold;
-        `;
-        markerElement.textContent = `${location.share}%`;
+    initializeMap();
 
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-          <div class="p-2">
-            <h3 class="font-semibold">${location.name}</h3>
-            <p class="text-sm">Market Share: ${location.share}%</p>
-            <p class="text-sm ${location.trend > 0 ? 'text-green-600' : location.trend < 0 ? 'text-red-600' : 'text-gray-600'}">
-              Trend: ${location.trend > 0 ? '+' : ''}${location.trend}%
-            </p>
-          </div>
-        `);
-
-        new mapboxgl.Marker(markerElement)
-          .setLngLat(location.coordinates)
-          .setPopup(popup)
-          .addTo(map.current);
-
-        markerElement.addEventListener('click', () => {
-          onLocationSelect?.(location);
-        });
-      });
-
-      // Adjust zoom based on level
-      if (zoomLevel === 'state') {
-        map.current.flyTo({ center: [-98.5795, 39.8283], zoom: 4 });
-      } else {
-        map.current.flyTo({ zoom: 8 });
-      }
-    }
-  }, [zoomLevel, selectedState, showTokenInput]);
-
-  useEffect(() => {
     return () => {
       map.current?.remove();
     };
   }, []);
 
-  if (showTokenInput) {
-    return (
-      <div className="flex flex-col items-center justify-center h-80 space-y-4 bg-gray-50 rounded-lg">
-        <div className="text-center space-y-2">
-          <h3 className="text-lg font-semibold">Mapbox Token Required</h3>
-          <p className="text-sm text-gray-600 max-w-md">
-            To display the interactive map, please enter your Mapbox public token. 
-            You can get one from <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">mapbox.com</a>
-          </p>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="mapbox-token">Mapbox Public Token</Label>
-          <Input
-            id="mapbox-token"
-            type="text"
-            placeholder="pk.eyJ1IjoieW91cnVzZXJuYW1lIiwiaWF0IjoxNjA5NDA5NjAwfQ..."
-            value={mapboxToken}
-            onChange={(e) => setMapboxToken(e.target.value)}
-            className="w-80"
-          />
-          <Button onClick={handleTokenSubmit} className="w-full">
-            Initialize Map
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (map.current && markersLayer.current) {
+      // Update markers based on filters
+      addMarkers(filteredData);
+
+      // Adjust zoom based on level
+      if (zoomLevel === 'state') {
+        map.current.setView([39.8283, -98.5795], 4);
+      } else {
+        // If filtering by state, zoom to that state's approximate center
+        if (selectedState && filteredData.length > 0) {
+          const stateData = filteredData[0];
+          map.current.setView([stateData.coordinates[1], stateData.coordinates[0]], 7);
+        } else {
+          map.current.setView([39.8283, -98.5795], 6);
+        }
+      }
+    }
+  }, [zoomLevel, selectedState, filteredData]);
 
   return (
     <div className="space-y-4">
@@ -239,7 +189,7 @@ const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
         )}
       </div>
       
-      <div className="relative w-full h-80 rounded-lg overflow-hidden">
+      <div className="relative w-full h-80 rounded-lg overflow-hidden border">
         <div ref={mapContainer} className="absolute inset-0" />
       </div>
       
