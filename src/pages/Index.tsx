@@ -1,10 +1,8 @@
-
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { MetricCard } from '@/components/MetricCard';
 import { 
   PieChart, 
-  BarChart3, 
   ShoppingCart, 
   UserX, 
   TrendingUp, 
@@ -22,7 +20,7 @@ const Index = () => {
     <Layout>
       <div className="space-y-6">
         {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-r from-paypal-blue to-blue-700 rounded-xl p-6 text-white">
           <h1 className="text-3xl font-bold mb-2">Welcome back, Sarah!</h1>
           <p className="text-blue-100 mb-4">
             Here's what's happening with your D2C electronics store this week.
@@ -44,7 +42,7 @@ const Index = () => {
         </div>
 
         {/* Key Metrics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <MetricCard
             title="Market Share"
             value="12.3%"
@@ -52,16 +50,6 @@ const Index = () => {
             changeLabel="vs last quarter"
             icon={<PieChart size={20} />}
             onClick={() => navigate('/market-share')}
-            className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
-          />
-          
-          <MetricCard
-            title="Avg Transaction Size"
-            value="$127"
-            change={8.2}
-            changeLabel="vs competitors"
-            icon={<BarChart3 size={20} />}
-            onClick={() => navigate('/transaction-analysis')}
             className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
           />
           

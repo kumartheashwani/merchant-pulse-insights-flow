@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import MarketShare from "./pages/MarketShare";
-import TransactionAnalysis from "./pages/TransactionAnalysis";
 import ProductInsights from "./pages/ProductInsights";
 import ChurnAnalysis from "./pages/ChurnAnalysis";
 import TrendAnalysis from "./pages/TrendAnalysis";
@@ -24,7 +23,6 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/market-share" element={<MarketShare />} />
-          <Route path="/transaction-analysis" element={<TransactionAnalysis />} />
           <Route path="/product-insights" element={<ProductInsights />} />
           <Route path="/churn-analysis" element={<ChurnAnalysis />} />
           <Route path="/trend-analysis" element={<TrendAnalysis />} />

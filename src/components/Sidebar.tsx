@@ -1,8 +1,6 @@
-
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  BarChart3, 
   TrendingUp, 
   ShoppingCart, 
   Users, 
@@ -17,7 +15,6 @@ import { cn } from '@/lib/utils';
 const menuItems = [
   { icon: Home, label: 'Dashboard', path: '/' },
   { icon: PieChart, label: 'Market Share', path: '/market-share' },
-  { icon: BarChart3, label: 'Transaction Analysis', path: '/transaction-analysis' },
   { icon: ShoppingCart, label: 'Product Insights', path: '/product-insights' },
   { icon: UserX, label: 'Churn Analysis', path: '/churn-analysis' },
   { icon: TrendingUp, label: 'Trend Analysis', path: '/trend-analysis' },
