@@ -67,54 +67,54 @@ const productData = [
 
 const wordCloudData = {
   'iPhone Cases': [
-    { text: 'durable', value: 45, sentiment: 'positive' },
-    { text: 'expensive', value: 32, sentiment: 'negative' },
-    { text: 'stylish', value: 28, sentiment: 'positive' },
-    { text: 'fragile', value: 25, sentiment: 'negative' },
-    { text: 'perfect', value: 22, sentiment: 'positive' },
-    { text: 'quality', value: 20, sentiment: 'positive' },
-    { text: 'overpriced', value: 18, sentiment: 'negative' },
-    { text: 'amazing', value: 15, sentiment: 'positive' }
+    { text: 'durable', value: 45, sentiment: 'positive' as const },
+    { text: 'expensive', value: 32, sentiment: 'negative' as const },
+    { text: 'stylish', value: 28, sentiment: 'positive' as const },
+    { text: 'fragile', value: 25, sentiment: 'negative' as const },
+    { text: 'perfect', value: 22, sentiment: 'positive' as const },
+    { text: 'quality', value: 20, sentiment: 'positive' as const },
+    { text: 'overpriced', value: 18, sentiment: 'negative' as const },
+    { text: 'amazing', value: 15, sentiment: 'positive' as const }
   ],
   'Wireless Earbuds': [
-    { text: 'sound', value: 42, sentiment: 'positive' },
-    { text: 'battery', value: 38, sentiment: 'negative' },
-    { text: 'comfortable', value: 35, sentiment: 'positive' },
-    { text: 'connection', value: 30, sentiment: 'negative' },
-    { text: 'excellent', value: 25, sentiment: 'positive' },
-    { text: 'problems', value: 22, sentiment: 'negative' },
-    { text: 'clear', value: 20, sentiment: 'positive' },
-    { text: 'disappointing', value: 18, sentiment: 'negative' }
+    { text: 'sound', value: 42, sentiment: 'positive' as const },
+    { text: 'battery', value: 38, sentiment: 'negative' as const },
+    { text: 'comfortable', value: 35, sentiment: 'positive' as const },
+    { text: 'connection', value: 30, sentiment: 'negative' as const },
+    { text: 'excellent', value: 25, sentiment: 'positive' as const },
+    { text: 'problems', value: 22, sentiment: 'negative' as const },
+    { text: 'clear', value: 20, sentiment: 'positive' as const },
+    { text: 'disappointing', value: 18, sentiment: 'negative' as const }
   ],
   'Phone Chargers': [
-    { text: 'fast', value: 40, sentiment: 'positive' },
-    { text: 'reliable', value: 35, sentiment: 'positive' },
-    { text: 'works', value: 30, sentiment: 'positive' },
-    { text: 'broke', value: 25, sentiment: 'negative' },
-    { text: 'convenient', value: 22, sentiment: 'positive' },
-    { text: 'cheap', value: 20, sentiment: 'negative' },
-    { text: 'perfect', value: 18, sentiment: 'positive' },
-    { text: 'stopped', value: 15, sentiment: 'negative' }
+    { text: 'fast', value: 40, sentiment: 'positive' as const },
+    { text: 'reliable', value: 35, sentiment: 'positive' as const },
+    { text: 'works', value: 30, sentiment: 'positive' as const },
+    { text: 'broke', value: 25, sentiment: 'negative' as const },
+    { text: 'convenient', value: 22, sentiment: 'positive' as const },
+    { text: 'cheap', value: 20, sentiment: 'negative' as const },
+    { text: 'perfect', value: 18, sentiment: 'positive' as const },
+    { text: 'stopped', value: 15, sentiment: 'negative' as const }
   ],
   'Bluetooth Speakers': [
-    { text: 'sound', value: 50, sentiment: 'positive' },
-    { text: 'loud', value: 45, sentiment: 'positive' },
-    { text: 'portable', value: 38, sentiment: 'positive' },
-    { text: 'bass', value: 35, sentiment: 'positive' },
-    { text: 'great', value: 30, sentiment: 'positive' },
-    { text: 'distorted', value: 20, sentiment: 'negative' },
-    { text: 'amazing', value: 18, sentiment: 'positive' },
-    { text: 'love', value: 15, sentiment: 'positive' }
+    { text: 'sound', value: 50, sentiment: 'positive' as const },
+    { text: 'loud', value: 45, sentiment: 'positive' as const },
+    { text: 'portable', value: 38, sentiment: 'positive' as const },
+    { text: 'bass', value: 35, sentiment: 'positive' as const },
+    { text: 'great', value: 30, sentiment: 'positive' as const },
+    { text: 'distorted', value: 20, sentiment: 'negative' as const },
+    { text: 'amazing', value: 18, sentiment: 'positive' as const },
+    { text: 'love', value: 15, sentiment: 'positive' as const }
   ],
   'Smart Watches': [
-    { text: 'features', value: 48, sentiment: 'positive' },
-    { text: 'battery', value: 42, sentiment: 'positive' },
-    { text: 'accurate', value: 38, sentiment: 'positive' },
-    { text: 'sleek', value: 35, sentiment: 'positive' },
-    { text: 'excellent', value: 30, sentiment: 'positive' },
-    { text: 'expensive', value: 15, sentiment: 'negative' },
-    { text: 'perfect', value: 25, sentiment: 'positive' },
-    { text: 'innovative', value: 20, sentiment: 'positive' }
+    { text: 'features', value: 48, sentiment: 'positive' as const },
+    { text: 'battery', value: 42, sentiment: 'positive' as const },
+    { text: 'accurate', value: 38, sentiment: 'positive' as const },
+    { text: 'sleek', value: 35, sentiment: 'positive' as const },
+    { text: 'excellent', value: 30, sentiment: 'positive' as const },
+    { text: 'expensive', value: 15, sentiment: 'negative' as const },
+    { text: 'perfect', value: 25, sentiment: 'positive' as const },
+    { text: 'innovative', value: 20, sentiment: 'positive' as const }
   ]
 };
 
@@ -362,20 +362,20 @@ const ProductInsights = () => {
             </CardContent>
           </Card>
         </div>
+
+        {selectedProduct && (
+          <SentimentModal
+            isOpen={!!selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+            productName={selectedProduct}
+            sentimentScore={productData.find(p => p.name === selectedProduct)?.sentimentScore || 0}
+            wordCloudData={wordCloudData[selectedProduct as keyof typeof wordCloudData] || []}
+            sentimentBreakdown={productData.find(p => p.name === selectedProduct)?.sentimentBreakdown || { positive: 0, negative: 0, neutral: 0 }}
+          />
+        )}
       </div>
     </Layout>
   );
 };
 
 export default ProductInsights;
-
-{selectedProduct && (
-  <SentimentModal
-    isOpen={!!selectedProduct}
-    onClose={() => setSelectedProduct(null)}
-    productName={selectedProduct}
-    sentimentScore={productData.find(p => p.name === selectedProduct)?.sentimentScore || 0}
-    wordCloudData={wordCloudData[selectedProduct as keyof typeof wordCloudData] || []}
-    sentimentBreakdown={productData.find(p => p.name === selectedProduct)?.sentimentBreakdown || { positive: 0, negative: 0, neutral: 0 }}
-  />
-)}
