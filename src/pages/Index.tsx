@@ -22,7 +22,7 @@ const Index = () => {
     <Layout>
       <div className="space-y-6">
         {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-emerald-600 rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
           <h1 className="text-3xl font-bold mb-2">Welcome back, Sarah!</h1>
           <p className="text-blue-100 mb-4">
             Here's what's happening with your D2C electronics store this week.
@@ -62,7 +62,7 @@ const Index = () => {
             changeLabel="vs competitors"
             icon={<BarChart3 size={20} />}
             onClick={() => navigate('/transaction-analysis')}
-            className="hover:bg-gradient-to-br hover:from-emerald-50 hover:to-emerald-100"
+            className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
           />
           
           <MetricCard
@@ -72,7 +72,7 @@ const Index = () => {
             changeLabel="churn rate"
             icon={<ShoppingCart size={20} />}
             onClick={() => navigate('/product-insights')}
-            className="hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100"
+            className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
           />
           
           <MetricCard
@@ -82,7 +82,7 @@ const Index = () => {
             changeLabel="vs last month"
             icon={<UserX size={20} />}
             onClick={() => navigate('/churn-analysis')}
-            className="hover:bg-gradient-to-br hover:from-red-50 hover:to-red-100"
+            className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
           />
         </div>
 
@@ -95,7 +95,7 @@ const Index = () => {
             changeLabel="growth"
             icon={<TrendingUp size={20} />}
             onClick={() => navigate('/trend-analysis')}
-            className="hover:bg-gradient-to-br hover:from-green-50 hover:to-green-100"
+            className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
           />
           
           <MetricCard
@@ -105,7 +105,7 @@ const Index = () => {
             changeLabel="engagement up"
             icon={<Users size={20} />}
             onClick={() => navigate('/customer-segmentation')}
-            className="hover:bg-gradient-to-br hover:from-indigo-50 hover:to-indigo-100"
+            className="hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
           />
         </div>
 
@@ -124,14 +124,14 @@ const Index = () => {
                 <p className="text-sm text-blue-700">Market analysis shows 23% opportunity in adjacent areas</p>
                 <Button size="sm" className="mt-2">View Details</Button>
               </div>
-              <div className="p-3 bg-emerald-50 rounded-lg">
-                <h4 className="font-semibold text-emerald-900 mb-1">Optimize Wireless Earbuds</h4>
-                <p className="text-sm text-emerald-700">15% churn detected, recommend price adjustment</p>
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <h4 className="font-semibold text-blue-900 mb-1">Optimize Wireless Earbuds</h4>
+                <p className="text-sm text-blue-700">15% churn detected, recommend price adjustment</p>
                 <Button size="sm" className="mt-2">Take Action</Button>
               </div>
-              <div className="p-3 bg-purple-50 rounded-lg">
-                <h4 className="font-semibold text-purple-900 mb-1">Target High-Income Segment</h4>
-                <p className="text-sm text-purple-700">Untapped 35-45 age group with 2x spending power</p>
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <h4 className="font-semibold text-blue-900 mb-1">Target High-Income Segment</h4>
+                <p className="text-sm text-blue-700">Untapped 35-45 age group with 2x spending power</p>
                 <Button size="sm" className="mt-2">Launch Campaign</Button>
               </div>
             </CardContent>
@@ -140,7 +140,7 @@ const Index = () => {
           <Card className="border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <DollarSign className="text-emerald-600" size={20} />
+                <DollarSign className="text-blue-600" size={20} />
                 Competitive Intelligence
               </CardTitle>
             </CardHeader>
