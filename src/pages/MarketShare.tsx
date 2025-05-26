@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { useToast } from '@/hooks/use-toast';
 import GeographicMap from '@/components/GeographicMap';
 
 const marketShareData = [
@@ -36,10 +37,23 @@ const geographyData = [
 
 const MarketShare = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleLocationSelect = (location: any) => {
     console.log('Selected location:', location);
     // You can add more functionality here, like showing detailed analytics for the selected location
+  };
+
+  const handlePieClick = (data: any) => {
+    if (data.name === 'Your Store') {
+      navigate('/product-insights');
+    } else {
+      toast({
+        title: "Feature Not Available",
+        description: `Further drill down for ${data.name} is not supported yet.`,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -76,9 +90,15 @@ const MarketShare = () => {
                       outerRadius={100}
                       dataKey="value"
                       label={({ name, value }) => `${name}: ${value}%`}
+                      onClick={handlePieClick}
+                      className="cursor-pointer"
                     >
                       {marketShareData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={entry.color}
+                          className="hover:opacity-80 transition-opacity"
+                        />
                       ))}
                     </Pie>
                     <Tooltip />
@@ -88,6 +108,7 @@ const MarketShare = () => {
               <div className="mt-4 p-4 bg-emerald-50 rounded-lg">
                 <p className="text-emerald-800 font-semibold">You rank #4 in your market</p>
                 <p className="text-emerald-600 text-sm">2.1% growth from last quarter</p>
+                <p className="text-emerald-600 text-xs mt-2">💡 Click on "Your Store" segment for detailed insights</p>
               </div>
             </CardContent>
           </Card>
