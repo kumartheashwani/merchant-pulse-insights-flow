@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { MetricCard } from '@/components/MetricCard';
+import { PaymentMethodCard } from '@/components/PaymentMethodCard';
 import { 
   PieChart, 
   ShoppingCart, 
@@ -115,7 +116,7 @@ const Index = () => {
         </div>
 
         {/* Insights & Recommendations */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -182,6 +183,9 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* New Payment Method Analysis Card */}
+          <PaymentMethodCard />
         </div>
       </div>
     </Layout>
