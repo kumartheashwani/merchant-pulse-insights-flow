@@ -1,4 +1,3 @@
-
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,6 +63,12 @@ const CustomerSegmentation = () => {
       default: return '#6b7280';
     }
   };
+
+  // Group data by segment for separate Scatter components
+  const budgetConsciousData = segmentData.filter(d => d.segment === 'Budget Conscious');
+  const valueSeekersData = segmentData.filter(d => d.segment === 'Value Seekers');
+  const premiumShoppersData = segmentData.filter(d => d.segment === 'Premium Shoppers');
+  const luxuryBuyersData = segmentData.filter(d => d.segment === 'Luxury Buyers');
 
   return (
     <Layout>
@@ -153,11 +158,6 @@ const CustomerSegmentation = () => {
                     label={{ value: 'Annual Income ($)', angle: -90, position: 'insideLeft' }}
                   />
                   <Tooltip 
-                    formatter={(value, name, props) => [
-                      name === 'age' ? value : `$${value.toLocaleString()}`,
-                      name === 'age' ? 'Age' : 'Income'
-                    ]}
-                    labelFormatter={() => ''}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
@@ -174,17 +174,10 @@ const CustomerSegmentation = () => {
                       return null;
                     }}
                   />
-                  <Scatter 
-                    data={segmentData} 
-                    fill={(entry) => getSegmentColor(entry.segment)}
-                  />
-                  {segmentData.map((entry, index) => (
-                    <Scatter
-                      key={index}
-                      data={[entry]}
-                      fill={getSegmentColor(entry.segment)}
-                    />
-                  ))}
+                  <Scatter data={budgetConsciousData} fill="#ef4444" />
+                  <Scatter data={valueSeekersData} fill="#f97316" />
+                  <Scatter data={premiumShoppersData} fill="#10b981" />
+                  <Scatter data={luxuryBuyersData} fill="#8b5cf6" />
                 </ScatterChart>
               </ResponsiveContainer>
             </div>
