@@ -20,7 +20,7 @@ interface GeographicData {
   share: number;
   trend: number;
   coordinates: [number, number];
-  level: 'state' | 'city';
+  level: 'state' | 'city' | 'zipcode' | 'radius';
 }
 
 interface GeographicMapProps {
@@ -32,24 +32,23 @@ const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const markersLayer = useRef<L.LayerGroup | null>(null);
-  const [zoomLevel, setZoomLevel] = useState<'state' | 'city'>('state');
-  const [selectedState, setSelectedState] = useState<string>('');
-  const [selectedCity, setSelectedCity] = useState<string>('');
+  const [selectedLocation, setSelectedLocation] = useState<string>('');
 
-  // Get unique cities for the city selector
-  const cityOptions = data
-    .filter(location => location.level === 'city')
-    .map(city => ({
-      id: city.id,
-      name: city.name,
-      coordinates: city.coordinates
-    }));
+  // Determine map type based on data
+  const mapType = data.length > 0 ? data[0].level : 'state';
+  const isStateLevel = mapType === 'state';
+  const isLocalLevel = ['zipcode', 'radius', 'city'].includes(mapType);
 
   const initializeMap = () => {
     if (!mapContainer.current) return;
 
+    // Different initial views based on data type
+    const mapConfig = isStateLevel 
+      ? { center: [39.8283, -98.5795], zoom: 4 } // US view for states
+      : { center: [34.0522, -118.2437], zoom: 10 }; // Local view for zip/radius
+
     // Initialize the map
-    map.current = L.map(mapContainer.current).setView([39.8283, -98.5795], 4);
+    map.current = L.map(mapContainer.current).setView(mapConfig.center as [number, number], mapConfig.zoom);
 
     // Add OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -60,8 +59,8 @@ const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
     // Create a layer group for markers
     markersLayer.current = L.layerGroup().addTo(map.current);
 
-    // Add markers for initial data
-    addMarkers(data.filter(location => location.level === 'state'));
+    // Add markers for data
+    addMarkers(data);
   };
 
   const addMarkers = (locations: GeographicData[]) => {
@@ -93,7 +92,7 @@ const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             cursor: pointer;
           ">
-            ${location.share}%
+            ${location.share.toFixed(1)}%
           </div>
         `,
         iconSize: [size, size],
@@ -106,9 +105,14 @@ const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
       });
 
       // Create popup content
+      const levelLabel = location.level === 'zipcode' ? 'Zip Code' : 
+                        location.level === 'radius' ? 'Radius Area' :
+                        location.level === 'state' ? 'State' : 'City';
+      
       const popupContent = `
         <div class="p-2">
           <h3 class="font-semibold">${location.name}</h3>
+          <p class="text-sm">Type: ${levelLabel}</p>
           <p class="text-sm">Market Share: ${location.share}%</p>
           <p class="text-sm ${location.trend > 0 ? 'text-green-600' : location.trend < 0 ? 'text-red-600' : 'text-gray-600'}">
             Trend: ${location.trend > 0 ? '+' : ''}${location.trend}%
@@ -121,46 +125,44 @@ const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
       // Add click event
       marker.on('click', () => {
         onLocationSelect?.(location);
+        setSelectedLocation(location.id);
       });
 
       // Add marker to layer group
       markersLayer.current?.addLayer(marker);
     });
+
+    // Auto-fit map to show all markers if there are multiple locations
+    if (locations.length > 1 && map.current) {
+      const group = new L.featureGroup(markersLayer.current.getLayers());
+      map.current.fitBounds(group.getBounds().pad(0.1));
+    }
   };
 
-  const handleCitySelect = (cityId: string) => {
-    setSelectedCity(cityId);
-    const city = cityOptions.find(c => c.id === cityId);
-    if (city && map.current) {
-      // Zoom to the selected city with high zoom level for city view
-      map.current.setView([city.coordinates[1], city.coordinates[0]], 12);
+  const handleLocationSelect = (locationId: string) => {
+    setSelectedLocation(locationId);
+    const location = data.find(l => l.id === locationId);
+    if (location && map.current) {
+      // Zoom to the selected location
+      const zoomLevel = isLocalLevel ? 12 : 6;
+      map.current.setView([location.coordinates[1], location.coordinates[0]], zoomLevel);
       
-      // Show only the selected city's data
-      const cityData = data.filter(location => location.id === cityId);
-      addMarkers(cityData);
+      // Trigger callback
+      onLocationSelect?.(location);
     }
   };
 
-  const resetToCountryView = () => {
-    setSelectedCity('');
-    setSelectedState('');
-    setZoomLevel('state');
+  const resetView = () => {
+    setSelectedLocation('');
     if (map.current) {
-      map.current.setView([39.8283, -98.5795], 4);
-      addMarkers(data.filter(location => location.level === 'state'));
+      if (isStateLevel) {
+        map.current.setView([39.8283, -98.5795], 4);
+      } else {
+        // Auto-fit to all locations
+        addMarkers(data);
+      }
     }
   };
-
-  const filteredData = data.filter(location => {
-    if (selectedCity) {
-      return location.id === selectedCity;
-    }
-    if (zoomLevel === 'state') {
-      return location.level === 'state';
-    } else {
-      return selectedState ? location.name.includes(selectedState) : location.level === 'city';
-    }
-  });
 
   useEffect(() => {
     initializeMap();
@@ -171,87 +173,48 @@ const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
   }, []);
 
   useEffect(() => {
-    if (map.current && markersLayer.current && !selectedCity) {
-      // Update markers based on filters (only if not in city view)
-      addMarkers(filteredData);
-
-      // Adjust zoom based on level
-      if (zoomLevel === 'state') {
-        map.current.setView([39.8283, -98.5795], 4);
-      } else {
-        // If filtering by state, zoom to that state's approximate center
-        if (selectedState && filteredData.length > 0) {
-          const stateData = filteredData[0];
-          map.current.setView([stateData.coordinates[1], stateData.coordinates[0]], 7);
-        } else {
-          map.current.setView([39.8283, -98.5795], 6);
-        }
-      }
+    if (map.current && markersLayer.current) {
+      addMarkers(data);
     }
-  }, [zoomLevel, selectedState, filteredData]);
+  }, [data]);
+
+  const getLocationTypeLabel = () => {
+    switch (mapType) {
+      case 'state': return 'State';
+      case 'zipcode': return 'Zip Code';
+      case 'radius': return 'Radius Area';
+      case 'city': return 'City';
+      default: return 'Location';
+    }
+  };
 
   return (
     <div className="space-y-4">
       <div className="flex gap-4 items-center flex-wrap">
         <div className="flex items-center gap-2">
-          <Label htmlFor="city-select">City View:</Label>
-          <Select value={selectedCity} onValueChange={handleCitySelect}>
+          <Label htmlFor="location-select">Focus on {getLocationTypeLabel()}:</Label>
+          <Select value={selectedLocation} onValueChange={handleLocationSelect}>
             <SelectTrigger className="w-48">
-              <SelectValue placeholder="Select a city" />
+              <SelectValue placeholder={`Select ${getLocationTypeLabel()}`} />
             </SelectTrigger>
             <SelectContent>
-              {cityOptions.map((city) => (
-                <SelectItem key={city.id} value={city.id}>
-                  {city.name}
+              {data.map((location) => (
+                <SelectItem key={location.id} value={location.id}>
+                  {location.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        {selectedCity && (
+        {selectedLocation && (
           <Button 
             variant="outline" 
             size="sm"
-            onClick={resetToCountryView}
+            onClick={resetView}
           >
-            Reset to Country View
+            Reset View
           </Button>
-        )}
-
-        {!selectedCity && (
-          <>
-            <div className="flex items-center gap-2">
-              <Label htmlFor="zoom-level">View Level:</Label>
-              <Select value={zoomLevel} onValueChange={(value: 'state' | 'city') => setZoomLevel(value)}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="state">State</SelectItem>
-                  <SelectItem value="city">City</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            {zoomLevel === 'city' && (
-              <div className="flex items-center gap-2">
-                <Label htmlFor="state-filter">Filter by State:</Label>
-                <Select value={selectedState} onValueChange={setSelectedState}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="All States" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All States</SelectItem>
-                    <SelectItem value="NY">New York</SelectItem>
-                    <SelectItem value="CA">California</SelectItem>
-                    <SelectItem value="TX">Texas</SelectItem>
-                    <SelectItem value="FL">Florida</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </>
         )}
       </div>
       
