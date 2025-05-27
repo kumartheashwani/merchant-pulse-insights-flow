@@ -1,9 +1,8 @@
-
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, TrendingUp, Calendar, BarChart } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Calendar, BarChart, AlertTriangle, Clock, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart as RechartsBarChart, Bar } from 'recharts';
 
@@ -29,6 +28,53 @@ const categoryPerformance = [
   { category: 'Charging Solutions', growth: 15.3, marketGrowth: 8.7 },
   { category: 'Screen Protection', growth: 8.7, marketGrowth: 11.4 },
   { category: 'Smart Devices', growth: 32.1, marketGrowth: 28.9 },
+];
+
+const futureEvents = [
+  {
+    type: 'Community Event',
+    title: 'Tech Conference 2024',
+    date: 'June 15-17, 2024',
+    location: 'Downtown Convention Center',
+    impact: 'High',
+    opportunity: 'Mobile accessories demand expected to increase by 40% during event days',
+    recommendations: ['Stock up on portable chargers', 'Increase screen protector inventory', 'Set up promotional booth'],
+    icon: <MapPin className="w-5 h-5" />,
+    color: 'bg-blue-500'
+  },
+  {
+    type: 'Tariff Change',
+    title: 'Electronics Import Tariff Reduction',
+    date: 'July 1, 2024',
+    location: 'National',
+    impact: 'Medium',
+    opportunity: 'Cost reduction of 15% on imported accessories, improving profit margins',
+    recommendations: ['Renegotiate supplier contracts', 'Adjust pricing strategy', 'Plan inventory expansion'],
+    icon: <AlertTriangle className="w-5 h-5" />,
+    color: 'bg-orange-500'
+  },
+  {
+    type: 'Festival',
+    title: 'Summer Music Festival',
+    date: 'August 20-22, 2024',
+    location: 'City Park',
+    impact: 'High',
+    opportunity: 'Audio devices and portable power solutions demand spike expected',
+    recommendations: ['Partner with event organizers', 'Set up mobile sales units', 'Promote wireless audio products'],
+    icon: <Calendar className="w-5 h-5" />,
+    color: 'bg-purple-500'
+  },
+  {
+    type: 'Economic Event',
+    title: 'Back-to-School Season',
+    date: 'August 15 - September 10, 2024',
+    location: 'Regional',
+    impact: 'Very High',
+    opportunity: 'Student accessories market grows by 60% during this period',
+    recommendations: ['Launch student discount program', 'Bundle deals for tablets and accessories', 'Target university campuses'],
+    icon: <TrendingUp className="w-5 h-5" />,
+    color: 'bg-emerald-500'
+  }
 ];
 
 const TrendAnalysis = () => {
@@ -164,6 +210,80 @@ const TrendAnalysis = () => {
             </CardContent>
           </Card>
         </div>
+
+        <Card className="border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <Clock className="w-6 h-6 text-blue-600" />
+              <CardTitle className="text-2xl">Future Events & Opportunities</CardTitle>
+            </div>
+            <p className="text-slate-600">Upcoming events and market changes that could impact your sales</p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {futureEvents.map((event, index) => (
+                <div key={index} className="p-6 border border-slate-200 rounded-xl bg-gradient-to-br from-white to-slate-50 hover:shadow-lg transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className={`${event.color} p-3 rounded-lg text-white`}>
+                      {event.icon}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className="text-xs">
+                          {event.type}
+                        </Badge>
+                        <Badge 
+                          className={`text-xs ${
+                            event.impact === 'Very High' ? 'bg-red-100 text-red-800' :
+                            event.impact === 'High' ? 'bg-orange-100 text-orange-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
+                          {event.impact} Impact
+                        </Badge>
+                      </div>
+                      
+                      <h3 className="font-bold text-lg text-slate-900 mb-1">{event.title}</h3>
+                      <div className="flex items-center gap-4 text-sm text-slate-600 mb-3">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          {event.date}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          {event.location}
+                        </span>
+                      </div>
+                      
+                      <div className="mb-4">
+                        <h4 className="font-semibold text-slate-900 mb-2">Opportunity:</h4>
+                        <p className="text-slate-700 text-sm">{event.opportunity}</p>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-slate-900 mb-2">Recommendations:</h4>
+                        <ul className="space-y-1">
+                          {event.recommendations.map((rec, recIndex) => (
+                            <li key={recIndex} className="text-sm text-slate-700 flex items-start gap-2">
+                              <span className="text-blue-500 mt-1">•</span>
+                              {rec}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <div className="mt-4">
+                        <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                          Create Action Plan
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="border-0 bg-white/80 backdrop-blur-sm">
           <CardHeader>
