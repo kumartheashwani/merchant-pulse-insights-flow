@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
@@ -28,7 +27,6 @@ const Index = () => {
     const baseMetrics = {
       revenue: '$84,352',
       orders: '1,247',
-      conversionRate: '3.2%',
       sentiment: '71%'
     };
 
@@ -37,21 +35,18 @@ const Index = () => {
         return {
           revenue: '$24,500',
           orders: '387',
-          conversionRate: '4.1%',
           sentiment: '78%'
         };
       case 'store-mall1':
         return {
           revenue: '$18,200',
           orders: '298',
-          conversionRate: '2.9%',
           sentiment: '69%'
         };
       case 'group-downtown':
         return {
           revenue: '$45,800',
           orders: '678',
-          conversionRate: '3.8%',
           sentiment: '74%'
         };
       default:
@@ -86,10 +81,6 @@ const Index = () => {
             <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
               <p className="text-sm opacity-90">Orders</p>
               <p className="text-xl font-bold">{currentMetrics.orders}</p>
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-              <p className="text-sm opacity-90">Conversion Rate</p>
-              <p className="text-xl font-bold">{currentMetrics.conversionRate}</p>
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 border border-white/10">
               <p className="text-sm opacity-90">Avg Sentiment</p>
