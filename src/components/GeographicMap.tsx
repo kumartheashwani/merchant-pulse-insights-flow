@@ -134,7 +134,7 @@ const GeographicMap = ({ data, onLocationSelect }: GeographicMapProps) => {
 
     // Auto-fit map to show all markers if there are multiple locations
     if (locations.length > 1 && map.current) {
-      const group = new L.featureGroup(markersLayer.current.getLayers());
+      const group = L.featureGroup(markersLayer.current.getLayers());
       map.current.fitBounds(group.getBounds().pad(0.1));
     }
   };
