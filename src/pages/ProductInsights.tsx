@@ -2,7 +2,7 @@ import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Package, TrendingDown, TrendingUp, AlertTriangle, Users, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Package, TrendingDown, TrendingUp, AlertTriangle, Users, MessageSquare, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { SentimentModal } from '@/components/SentimentModal';
@@ -272,35 +272,51 @@ const ProductInsights = () => {
                       </Button>
                     </div>
                     
-                    <div>
-                      <p className="text-sm text-slate-600 mb-2">Customer Insights:</p>
-                      <p className="text-sm text-slate-800 mb-2">Analyze who buys this product</p>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        className="w-full flex items-center gap-2"
-                        onClick={() => navigate('/customer-segmentation')}
-                      >
-                        <Users size={16} />
-                        View Customer Segments
-                      </Button>
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Users className="w-4 h-4 text-blue-600" />
+                        <p className="text-sm font-semibold text-blue-900">Customer Intelligence</p>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="bg-white/80 p-2 rounded text-center">
+                          <p className="text-xs text-slate-600">Target Audience</p>
+                          <p className="text-sm font-medium text-slate-800">Tech Enthusiasts 25-40</p>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="w-full flex items-center gap-2 bg-white/80 hover:bg-white border-blue-200 text-blue-700 hover:text-blue-800"
+                          onClick={() => navigate('/customer-segmentation')}
+                        >
+                          <BarChart3 size={14} />
+                          View Demographics
+                        </Button>
+                      </div>
                     </div>
                     
-                    <div>
-                      <p className="text-sm text-slate-600 mb-2">Review Sentiment:</p>
-                      <p className="text-sm text-slate-800 mb-2">
-                        {product.sentimentScore > 0.7 ? 'Very Positive' : 
-                         product.sentimentScore > 0.5 ? 'Positive' : 'Mixed Reviews'}
-                      </p>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        className="w-full flex items-center gap-2"
-                        onClick={() => setSelectedProduct(product.name)}
-                      >
-                        <MessageSquare size={16} />
-                        View Word Cloud
-                      </Button>
+                    <div className="bg-gradient-to-br from-emerald-50 to-green-50 p-4 rounded-lg border border-emerald-100">
+                      <div className="flex items-center gap-2 mb-3">
+                        <MessageSquare className="w-4 h-4 text-emerald-600" />
+                        <p className="text-sm font-semibold text-emerald-900">Review Analysis</p>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="bg-white/80 p-2 rounded text-center">
+                          <p className="text-xs text-slate-600">Customer Mood</p>
+                          <p className="text-sm font-medium text-slate-800">
+                            {product.sentimentScore > 0.7 ? 'Very Positive' : 
+                             product.sentimentScore > 0.5 ? 'Positive' : 'Mixed Feelings'}
+                          </p>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="w-full flex items-center gap-2 bg-white/80 hover:bg-white border-emerald-200 text-emerald-700 hover:text-emerald-800"
+                          onClick={() => setSelectedProduct(product.name)}
+                        >
+                          <BarChart3 size={14} />
+                          Analyze Feedback
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
